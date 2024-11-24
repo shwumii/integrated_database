@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Ghibli Fans - Movie List</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/mycss.css') }}" rel="stylesheet">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+
+<header>
+	<div class="navbar-header">
+		<a class="navbar-brand" href="/">
+			<img style="max-width:640px; margin-top: 1px;" src="{{ url_for('static', filename='img/Studio-Ghibli-Logo.jpg') }}">
+		</a>
+    </div>
+
+	<div class = "container-fluid">
+		<a href="{{ url_for('logout') }}">
+			<button type="button" class="btn btn-primary" aria-label="Left Align" style="margin-top: 5px; margin-bottom: 5px; height: 44px; margin-right: 15px">
+			<span class="glyphicon glyphicon-off" aria-hidden="true"></span> Logout
+			</button>
+		</a>
+		<div style="margin-right: 10px; margin-left: 15px; margin-top: 5px; margin-bottom: 5px;"  class="container-fluid">	
+		</div>
+	</div>
+</header>
+
+<body>
+	<h2>Welcome {{ session['fullname'] }} to Ghibli Fans</h2>
+	<p>Select the movie from the list below to view and add your review and comments</p>
+	
+	<table border="1">
+	<tr>
+		<th>Link</th>
+		<th>Title</th>
+		<th>Year</th>
+		<th>Director</th>
+		<th>Length (mins)</th>
+		<th>Rating</th>
+		<th>MovieID</th>
+	</tr>
+	{% for item in data %}
+		<tr>
+			<td><a href="{{ url_for('discussion', movieNbr=item[0]) }}">
+			<img style="max-width:130px; margin-top: 1px;" src="static/movie_img/{{ item[0] }}.jpg"></a></td>
+			<td><a href="https://www.google.com.au/search?q={{item[1]}}" target="_blank">{{ item[1] }}</a></td>
+			<td>{{ item[2] }}</td>
+			<td>{{ item[3] }}</td>
+			<td>{{ item[4] }}</td>
+			<td>{{ item[5] }}</td>
+			<td>{{ item[0] }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+			
+</body>
+
+</html>
