@@ -92,6 +92,7 @@ def login():
             session['id'] = resultset['memberID'] 
             session['usrid'] = resultset['usrid']
             session['fullname'] = resultset['member_name']
+            session['new_comment'] = False
             # close the cursor object
             cursor.close()
             # Redirect to home page
@@ -122,6 +123,13 @@ def movies():
         # User is not loggedin redirect to login page
         return redirect(url_for('login'))
 
+@app.route('/editMovie/<movieNbr>')
+def editMovie(movieNbr):
+    return(movieNbr)
+
+@app.route('/deleteMovie/<movieNbr>')
+def deleteMovie(movieNbr):
+    return(movieNbr)
 
 @app.route('/logout')
 def logout():
@@ -202,13 +210,11 @@ def discussion(movieNbr):
             session['movie_id'] = movieNbr
             # SQL query to fetch discussion for a particular movie
             cursor = mysql.connection.cursor()
-            cursor.execute('SELECT usrid, comments FROM discussion INNER JOIN member ON discussion.memberID = member.memberID WHERE discussion.movieID = %s', (movieID))
+            cursor.execute('SELECT usrid, comments, commentDate, discussionID FROM discussion INNER JOIN member ON discussion.memberID = member.memberID WHERE discussion.movieID = %s', (movieID,))
             #cursor.execute('SELECT member.usrid, discussion.comments, movie.movieID, movie.title FROM discussion INNER JOIN member ON discussion.memberID = member.memberID INNER JOIN movie ON discussion.movieID = movie.movieID WHERE movie.movieID = %s', (movieID,))
             data = cursor.fetchall()
             cursor.close()
             return render_template('discussion.html', data=data, movieNbr=movieID)
-        elif request.method == 'POST':
-            print("this is a post request")
         else:
             print("Invalid HTTP request")
     else:
@@ -241,8 +247,7 @@ def comment():
             # Check if inputs exist, else print error
             if not 'entry' in request.form:
                 msg+="No message in comment entry.\n"
-            if not 'movieID' in session:
-                msg+="No movieID in session.\n"
+                # msg+="No movieID in session.\n"
             if not 'id' in session:
                 msg+="No memberID in session.\n"
             if len(msg) == 0:
@@ -260,13 +265,12 @@ def comment():
                 #sql query and values
                 query = "INSERT INTO ghibli.discussion (commentDate, comments, memberID, movieID) VALUES (%s, %s, %s, %s);"
                 values = (comment_date, entry,memberID,movieID)
-                
+                print(session['usrid'])
                 # executing query
                 cursor.execute(query, values)
                 mysql.connection.commit()
                 # close sql cursor
                 cursor.close()
-
                 # Returns updated page with new comment
                 return redirect(url_for('discussion', movieNbr=movieID))
             else:
@@ -281,14 +285,58 @@ def comment():
      return redirect(url_for('login'))
 
 #-----------------------------------------------------------------------------
-@app.route('/editComment', methods=['POST'])
-def editComment():
-    if request.method == 'POST':
-        print = "This will edit the comment"
-        print(print)
-        return print
+@app.route('/updateComment/<discussionID>', methods=['POST'])
+def updateComment(discussionID):
+    if 'loggedin' in session:
+        if request.method == 'POST' and 'newComment' in request.form:
+            #create variables
+            entry = request.form['newComment']
+            movieID = session['movie_id']
+            discussionID = discussionID
+            comment_date = datetime.now()
+            comment_date = comment_date.strftime("%d-%b-%Y")
+
+            query = "UPDATE discussion SET comments = %s, commentDate = %s WHERE discussionID = %s;"
+            values = (entry, comment_date, discussionID)
+
+            cursor = mysql.connection.cursor()
+            cursor.execute(query, values)
+            mysql.connection.commit()
+
+            cursor.close()
+
+            return redirect(url_for('discussion', movieNbr=movieID))
+        else:
+            return("Invalid request")
     else:
         return redirect(url_for('login'))
+#-----------------------------------------------------------------------------
+@app.route('/deleteComment/<discussionID>', methods=['POST', 'GET'])
+def deleteComment(discussionID):
+    if 'loggedin' in session:
+        if request.method == 'POST':
+            #create variables
+            movieID = session['movie_id']
+            discussionID = discussionID
+            comment_date = datetime.now()
+            comment_date = comment_date.strftime("%d-%b-%Y")
+
+            query = "DELETE FROM discussion WHERE discussionID = %s;"
+            values = (discussionID,)
+            print(discussionID)
+
+            cursor = mysql.connection.cursor()
+            cursor.execute(query, values)
+            mysql.connection.commit()
+
+            cursor.close()
+
+            return redirect(url_for('discussion', movieNbr=movieID))
+        else:
+            return("Invalid request")
+    else:
+        return redirect(url_for('login'))
+
 #-----------------------------------------------------------------------------
 def main():
     app.run(debug=True)

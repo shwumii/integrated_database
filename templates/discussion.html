@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>Ghibli Fans - Discussion</title>
@@ -12,22 +13,26 @@
 <header>
 	<div class="navbar-header">
 		<a class="navbar-brand" href="/">
-			<img style="max-width:640px; margin-top: 1px;" src="{{ url_for('static', filename='img/Studio-Ghibli-Logo.jpg') }}">
+			<img style="max-width:640px; margin-top: 1px;"
+				src="{{ url_for('static', filename='img/Studio-Ghibli-Logo.jpg') }}">
 		</a>
-    </div>
+	</div>
 
-	<div class = "container-fluid">
+	<div class="container-fluid">
 		<a href="{{ url_for('logout') }}">
-			<button type="button" class="btn btn-primary" aria-label="Left Align" style="margin-top: 5px; margin-bottom: 5px; height: 44px; margin-right: 15px">
-			<span class="glyphicon glyphicon-off" aria-hidden="true"></span> Logout
+			<button type="button" class="btn btn-primary" aria-label="Left Align"
+				style="margin-top: 5px; margin-bottom: 5px; height: 44px; margin-right: 15px">
+				<span class="glyphicon glyphicon-off" aria-hidden="true"></span> Logout
 			</button>
 		</a>
 		<a href="{{ url_for('movies') }}">
-			<button type="button" class="btn btn-primary" aria-label="Left Align" style="margin-top: 5px; margin-bottom: 5px; height: 44px; margin-right: 15px">
-			<span class="glyphicon glyphicon-off" aria-hidden="true"></span> Movie List
+			<button type="button" class="btn btn-primary" aria-label="Left Align"
+				style="margin-top: 5px; margin-bottom: 5px; height: 44px; margin-right: 15px">
+				<span class="glyphicon glyphicon-off" aria-hidden="true"></span> Movie List
 			</button>
 		</a>
-		<div style="margin-right: 10px; margin-left: 15px; margin-top: 5px; margin-bottom: 5px;"  class="container-fluid">	
+		<div style="margin-right: 10px; margin-left: 15px; margin-top: 5px; margin-bottom: 5px;"
+			class="container-fluid">
 		</div>
 	</div>
 </header>
@@ -36,32 +41,55 @@
 	<h2>Ghibli Fans - Discussion Forum</h2>
 	<p>
 		<img style="max-width:130px; margin-top: 1px;" src="/static/movie_img/{{ movieNbr }}.jpg">
-		<form action="{{ url_for('comment') }}" method="post">
-			<label for="comment">
-				<i class="fas fa-user"></i>
-			</label>
-			<input type="textarea" name="entry" rows="10" cols="80" wrap="hard" placeholder="Add your comments for this Studio Ghibli movie" id="entry" required>
-			<br>
-			<br>
-			<input type="submit" value="Add Comment">
-			<br>
-			<br>
-		</form>
+	<form action="{{ url_for('comment') }}" method="post">
+		<label for="comment">
+			<i class="fas fa-user"></i>
+		</label>
+		<input type="textarea" name="entry" rows="10" cols="80" wrap="hard"
+			placeholder="Add your comments for this Studio Ghibli movie" id="entry" required>
+		<br>
+		<br>
+		<input type="submit" value="Add Comment">
+		<br>
+		<br>
+	</form>
 	</p>
-	
+
+
 	<hr>
 	{% for item in data %}
-	<div class="hoverDiv">
-		<form action="{{ url_for('editComment')}}" method="post">
-			<p contenteditable="true">{{ item[1] }}</p>
-		</form>
-		</br>
-			<p>{{ item[0] }}</p>
-		
-		<hr>
-	</div>
-	{% endfor %}
+	<p name="comment">{{ item[1] }}<br>{{ item[0] }}<small>     :   {{item[2]}}</small></p>
+	{% if session['usrid'] == item[0] %}
+	<!-- Edit and delete options for user's own comment -->
+	<div class="mt-2 d-flex align-items-start" style="gap: 10px; margin-right: 1200px;">
+		<form action="{{ url_for('updateComment', discussionID=item[3]) }}" method="post" style="flex: 1;">
+			<input type="hidden" name="discussionID" value="{{ item[4] }}">
+			<input type="hidden" name="movieID" value="{{ movieNbr }}">
+
+			<!-- Update comment button form -->
+			<div class="d-flex align-items-start" style="gap: 20px;">
+				<textarea name="newComment" class="form-control" cols="80" rows="2" placeholder="Edit your comment"
+					style="flex: 1; width: 500px;">{{ item[1] }}</textarea>
+				<button type="submit" class="btn btn-primary btn-sm">Update comment</button>
+			</div>
+			<!-- Delete button form -->
 			
+			<!-- Error message container -->
+			<div id="error-message" style="color: red; margin-top: 5px;"></div>
+		</form>
+		<form action="{{ url_for('deleteComment', discussionID=item[3]) }}" method="post">
+			<button type="submit" class="btn btn-danger btn-sm">Delete comment</button>
+			<input type="hidden" name="discussionID" value="{{ item[4] }}">
+			<input type="hidden" name="movieID" value="{{ movieNbr }}">
+		</form>
+
+
+
+	</div>
+	{% endif %}
+	<hr>
+	{% endfor %}
+
 </body>
 
 </html>
