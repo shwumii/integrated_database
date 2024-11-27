@@ -1,5 +1,3 @@
-CREATE DATABASE `ghibli`;
-
 USE `ghibli`;
 
 CREATE TABLE IF NOT EXISTS `movie` (

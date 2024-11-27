@@ -122,14 +122,13 @@ def movies():
     else:
         # User is not loggedin redirect to login page
         return redirect(url_for('login'))
-
+    
 @app.route('/editMovie/<movieNbr>')
 def editMovie(movieNbr):
-    return(movieNbr)
-
-@app.route('/deleteMovie/<movieNbr>')
-def deleteMovie(movieNbr):
-    return(movieNbr)
+    session['movie_id'] = movieNbr
+    print(movieNbr)
+    msg = "Movie ID: " + movieNbr
+    return (msg)
 
 @app.route('/logout')
 def logout():
@@ -217,11 +216,6 @@ def discussion(movieNbr):
             return render_template('discussion.html', data=data, movieNbr=movieID)
         else:
             print("Invalid HTTP request")
-    else:
-        return render_template('login.html')
-def editComment():
-    if 'loggedin' in session:
-        print("This is a patch method")
     else:
         return render_template('login.html')
 @app.route("/")
