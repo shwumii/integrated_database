@@ -135,7 +135,12 @@ def editMovie(movieNbr):
         query = "UPDATE movie SET releaseYear = %s, director = %s, length = %s, rating = %s WHERE movieID = %s;"
         values = (eYear, eDirector, eLength, eRating, movieID)
         
+        cursor = mysql.connection.cursor()
+        cursor.execute(query, values)
+        mysql.connection.commit()
+        cursor.close()
         
+        return redirect(url_for('movies'))
     else:
         return redirect(url_for('login'))
 
