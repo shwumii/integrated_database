@@ -123,12 +123,21 @@ def movies():
         # User is not loggedin redirect to login page
         return redirect(url_for('login'))
     
-@app.route('/editMovie/<movieNbr>')
+@app.route('/editMovie/<movieNbr>', methods=[])
 def editMovie(movieNbr):
-    session['movie_id'] = movieNbr
-    print(movieNbr)
-    msg = "Movie ID: " + movieNbr
-    return (msg)
+    if 'loggedin' in session:
+        eYear = request.form['year']
+        eDirector = request.form['director']
+        eLength = request.form['length']
+        eRating = request.form['rating']
+        movieID = movieNbr
+        
+        query = "UPDATE movie SET releaseYear = %s, director = %s, length = %s, rating = %s WHERE movieID = %s;"
+        values = (eYear, eDirector, eLength, eRating, movieID)
+        
+        
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/logout')
 def logout():
